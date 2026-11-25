@@ -301,6 +301,14 @@
                             placeholder="Model (optional)">
                     </div>
 
+                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5">
+                        <input id="llmSelection" type="checkbox" class="mt-0.5 h-4 w-4 flex-shrink-0 accent-accent">
+                        <span>
+                            <span class="block text-sm font-medium text-neutral-100">Let the AI pick each row's titles</span>
+                            <span class="mt-0.5 block text-xs text-neutral-400">The recommender scores a wider pool, then your model picks the titles each row finally serves, best first. Runs during the background refresh only; without a key rows keep their scored order.</span>
+                        </span>
+                    </label>
+
                     <div id="llmValidationMessage" class="mt-2 text-xs hidden"></div>
                 </div>
             </div>

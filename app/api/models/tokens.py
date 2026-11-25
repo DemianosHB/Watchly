@@ -26,6 +26,9 @@ class TokenRequest(BaseModel):
     )
     simkl_api_key: str | None = Field(default=None, description="Simkl API Key for the user")
     llm: LLMConfig | None = Field(default=None, description="LLM provider configuration for AI features")
+    llm_selection: bool = Field(
+        default=False, description="Let the configured LLM pick and order each row's final titles"
+    )
     gemini_api_key: str | None = Field(default=None, description="Legacy Gemini API key (superseded by llm)")
     tmdb_api_key: str | None = Field(default=None, description="TMDB API Key")
     trakt_access_token: str | None = Field(default=None, description="Trakt OAuth access token")

@@ -99,6 +99,7 @@ function getRequestPayload() {
         llm_provider: document.getElementById('llmProvider')?.value || '',
         llm_api_key: document.getElementById('llmApiKey')?.value.trim() || '',
         llm_model: document.getElementById('llmModel')?.value.trim() || '',
+        llm_selection: document.getElementById('llmSelection')?.checked || false,
         excluded_movie_genres: Array.from(document.querySelectorAll('input[name="movie-genre"]:checked')).map(cb => cb.value),
         excluded_series_genres: Array.from(document.querySelectorAll('input[name="series-genre"]:checked')).map(cb => cb.value),
         watch_history_source: document.getElementById('watchHistorySource')?.value || 'stremio',
@@ -146,6 +147,7 @@ function buildTokenPayload(formData) {
                 model: formData.llm_model || undefined,
             }
             : undefined,
+        llm_selection: formData.llm_selection === true,
         excluded_movie_genres: formData.excluded_movie_genres,
         excluded_series_genres: formData.excluded_series_genres,
         watch_history_source: formData.watch_history_source,

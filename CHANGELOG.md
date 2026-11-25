@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased (PoC: LLM row selection)
+
+### Added
+
+- An opt-in "Let the AI pick each row's titles" toggle in the AI features section. With an LLM key set, each catalog row is built from three times the scored candidates and the model picks and orders the final titles; unknown or duplicate picks are dropped and missing slots fill from the scored order, so a failing or lazy model never empties or shortens a row. Runs during the background resync only; "Watch it again" can't be reselected, and without a key nothing changes.
+
 ## 1.18.0 - 2026-11-13
 
 ### Added

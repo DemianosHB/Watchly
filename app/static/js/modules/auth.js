@@ -588,6 +588,9 @@ async function fetchIdentity(payload) {
                 });
             }
 
+            const llmSelection = document.getElementById('llmSelection');
+            if (llmSelection) llmSelection.checked = !!s.llm_selection;
+
             // Watch History Source + OAuth tokens
             restoreWatchHistoryState(s);
 

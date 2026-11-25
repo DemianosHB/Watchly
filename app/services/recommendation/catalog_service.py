@@ -10,7 +10,7 @@ from loguru import logger
 from app.core.config import settings
 from app.core.constants import DEFAULT_CATALOG_LIMIT
 from app.core.security import redact_token
-from app.core.settings import UserSettings, resolve_tmdb_api_key
+from app.core.settings import UserSettings, resolve_llm_config, resolve_tmdb_api_key
 from app.models.library import LibraryCollection
 from app.models.profile import TasteProfile
 from app.services.catalog_updater import catalog_updater
@@ -20,6 +20,12 @@ from app.services.recommendation.all_based import AllBasedService
 from app.services.recommendation.catalog_utils import clean_meta, shuffle_data_if_needed
 from app.services.recommendation.creators import CreatorsService
 from app.services.recommendation.item_based import ItemBasedService
+from app.services.recommendation.llm_selection import (
+    POOL_FACTOR,
+    llm_selection_active,
+    llm_select_row,
+    taste_summary,
+)
 from app.services.recommendation.rewatch import RewatchService
 from app.services.recommendation.theme_based import ThemeBasedService
 from app.services.recommendation.top_picks import TopPicksService
@@ -221,6 +227,11 @@ class CatalogService:
                     user_settings=ctx.user_settings,
                 )
 
+            # LLM selection curates from a deeper slice of the scored pool, so
+            # fetch extra candidates for it to choose from.
+            limit = DEFAULT_CATALOG_LIMIT
+            ai_select = llm_selection_active(ctx.user_settings, content_type, resolved_id)
+            fetch_limit = limit * POOL_FACTOR if ai_select else limit
             recommendations = await self._get_recommendations(
                 catalog_id=resolved_id,
                 content_type=content_type,
@@ -229,9 +240,28 @@ class CatalogService:
                 watched_tmdb=watched_tmdb,
                 watched_imdb=watched_imdb,
                 library_items=ctx.library,
-                limit=DEFAULT_CATALOG_LIMIT,
+                limit=fetch_limit,
                 user_settings=ctx.user_settings,
             )
+
+            if ai_select:
+                before = [m.get("id") for m in recommendations[:limit]]
+                # The gate above guarantees a resolved LLM config here when the
+                # flag is on; a None would still fail open inside the selector.
+                recommendations = (
+                    await llm_select_row(
+                        recommendations,
+                        llm_config=resolve_llm_config(ctx.user_settings),
+                        limit=limit,
+                        row=resolved_id,
+                        taste=taste_summary(profile, content_type),
+                    )
+                )[:limit]
+                if [m.get("id") for m in recommendations] != before:
+                    logger.info(
+                        f"[{redact_token(ctx.token)}] LLM reselected {resolved_id}: "
+                        f"{len(recommendations)} of {fetch_limit} candidates kept"
+                    )
 
             logger.debug(f"Returning {len(recommendations)} items for {content_type}")
 

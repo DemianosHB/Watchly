@@ -123,6 +123,10 @@ class UserSettings(BaseModel):
     )
     simkl_api_key: str | None = Field(default=None, description="Simkl API Key for the user")
     llm: LLMConfig | None = Field(default=None, description="LLM provider configuration for AI features")
+    llm_selection: bool = Field(
+        default=False,
+        description="Let the configured LLM pick and order the final titles of each catalog row",
+    )
     # Superseded by `llm`; kept so accounts configured before multi-provider
     # support keep their AI features (see resolve_llm_config).
     gemini_api_key: str | None = Field(default=None, description="Gemini API Key for AI-powered features")
