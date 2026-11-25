@@ -121,8 +121,16 @@ class UserSettings(BaseModel):
     sorting_order: Literal["default", "movies_first", "series_first", "combined"] = Field(
         default="default", description="Order of movies and series catalogs"
     )
+    digital_release_only: bool = Field(
+        default=False,
+        description="Movies: only recommend titles already released on digital/home media",
+    )
     simkl_api_key: str | None = Field(default=None, description="Simkl API Key for the user")
     llm: LLMConfig | None = Field(default=None, description="LLM provider configuration for AI features")
+    llm_selection: bool = Field(
+        default=False,
+        description="Let the configured LLM pick and order the final titles of each catalog row",
+    )
     # Superseded by `llm`; kept so accounts configured before multi-provider
     # support keep their AI features (see resolve_llm_config).
     gemini_api_key: str | None = Field(default=None, description="Gemini API Key for AI-powered features")
@@ -134,12 +142,14 @@ class UserSettings(BaseModel):
     )
     simkl_access_token: str | None = Field(default=None, description="Simkl OAuth access token")
     mdblist_api_key: str | None = Field(default=None, description="MDBList API key; also the account identity")
+    scrob_base_url: str | None = Field(default=None, description="Scrob instance URL")
+    scrob_api_key: str | None = Field(default=None, description="Scrob per-user API key")
     nuvio_access_token: str | None = Field(default=None, description="Nuvio session access token")
     nuvio_refresh_token: str | None = Field(default=None, description="Nuvio session refresh token")
     nuvio_expires_at: int | None = Field(default=None, description="Epoch seconds when the Nuvio access token expires")
     nuvio_profile_id: int | None = Field(default=None, description="Nuvio profile index the history is read from")
     nuvio_profile_name: str | None = Field(default=None, description="Nuvio profile name, for the addon title")
-    watch_history_source: Literal["stremio", "trakt", "simkl", "mdblist", "nuvio"] = Field(
+    watch_history_source: Literal["stremio", "trakt", "simkl", "mdblist", "nuvio", "scrob"] = Field(
         default="stremio", description="Source for watch history used in profile building"
     )
 
