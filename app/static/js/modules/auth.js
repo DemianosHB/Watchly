@@ -461,6 +461,7 @@ export async function recallProviderAccount(provider, tokens) {
         trakt: { trakt_access_token: tokens.access_token },
         simkl: { simkl_access_token: tokens.access_token },
         mdblist: { mdblist_api_key: tokens.api_key },
+        scrob: { scrob_base_url: tokens.base_url, scrob_api_key: tokens.api_key },
         nuvio: { nuvio_access_token: tokens.access_token, nuvio_profile_id: tokens.profile_id },
     }[provider];
     try {
@@ -531,6 +532,9 @@ async function fetchIdentity(payload) {
             const sortingOrderSelect = document.getElementById('sortingOrderSelect');
             if (s.sorting_order && sortingOrderSelect) sortingOrderSelect.value = s.sorting_order;
 
+            const digitalReleaseOnly = document.getElementById('digitalReleaseOnly');
+            if (digitalReleaseOnly) digitalReleaseOnly.checked = !!s.digital_release_only;
+
             // Handle poster rating: prefer new format, fallback to old rpdb_key
             const posterRatingProvider = document.getElementById('posterRatingProvider');
             const posterRatingApiKey = document.getElementById('posterRatingApiKey');
@@ -587,6 +591,9 @@ async function fetchIdentity(payload) {
                     hint: hints['llm.api_key'] || hints.gemini_api_key,
                 });
             }
+
+            const llmSelection = document.getElementById('llmSelection');
+            if (llmSelection) llmSelection.checked = !!s.llm_selection;
 
             // Watch History Source + OAuth tokens
             restoreWatchHistoryState(s);
@@ -822,6 +829,18 @@ function restoreWatchHistoryState(settings) {
         const mdblistStatus = document.getElementById('mdblistStatus');
         if (mdblistStatus) mdblistStatus.textContent = 'Connected';
         setProviderConnected('mdblist', true);
+    }
+
+    const scrobKeyInput = document.getElementById('scrobApiKey');
+    if (settings.scrob_api_key && scrobKeyInput && !scrobKeyInput.value) {
+        // Same masked-marker round-trip as MDBList; the instance URL is not a
+        // secret and loads as-is.
+        const scrobUrlInput = document.getElementById('scrobBaseUrl');
+        if (scrobUrlInput && settings.scrob_base_url) scrobUrlInput.value = settings.scrob_base_url;
+        scrobKeyInput.value = settings.scrob_api_key;
+        const scrobStatus = document.getElementById('scrobStatus');
+        if (scrobStatus) scrobStatus.textContent = 'Connected';
+        setProviderConnected('scrob', true);
     }
 
     if (settings.nuvio_access_token && !hasLiveToken('nuvio')) {
